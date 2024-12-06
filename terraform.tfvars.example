@@ -1,0 +1,9 @@
+auth0_application_name = "Token Exchange M2M Application"
+auth0_domain           = "token-exchange-demo.us.auth0.com"
+auth0_client_id        = "value"
+auth0_client_secret    = "value"
+
+heroku_email    = "value"
+heroku_api_key  = "value"
+heroku_app_name = "token-exchange-beta"
+
