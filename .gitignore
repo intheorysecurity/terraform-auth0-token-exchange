@@ -1,0 +1,10 @@
+node_modules/
+.terraform/
+*.tfvars
+*.tfvars.json
+*.lock.hcl
+*.tfstate
+*.tfstate.backup
+.env
+package-lock.json
+todo
