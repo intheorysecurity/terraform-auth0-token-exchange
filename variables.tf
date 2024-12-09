@@ -62,5 +62,6 @@ variable "app_local_path" {
 }
 
 variable "json_secret" {
-  type = string
+  type    = string
+  default = "Password123!"
 }

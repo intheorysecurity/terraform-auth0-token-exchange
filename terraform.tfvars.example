@@ -7,3 +7,4 @@ heroku_email    = "value"
 heroku_api_key  = "value"
 heroku_app_name = "token-exchange-beta"
 
+json_secret = "secret"
