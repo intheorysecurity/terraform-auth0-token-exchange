@@ -11,7 +11,7 @@ router.post("/createtoken", async (req, res) => {
     issuer: "api-dev",
   };
 
-  var jsonToken = jwt.sign(payload, "password123", { expiresIn: "1h" });
+  var jsonToken = jwt.sign(payload, process.env.JSON_SECRET , { expiresIn: "1h" });
 
   return res.json(jsonToken);
 });
