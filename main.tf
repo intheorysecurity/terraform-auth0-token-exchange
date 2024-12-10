@@ -44,6 +44,7 @@ resource "heroku_config" "common" {
     AUTH0_DOMAIN            = "${var.auth0_domain}"
     AUTH0_API_CLIENT_ID     = "${auth0_client.token_exchange_app.client_id}"
     AUTH0_API_CLIENT_SECRET = "${auth0_client_credentials.token_exchange_app_creds.client_secret}"
+    JSON_SECRET = "${var.json_secret}"
   }
 }
 
