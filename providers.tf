@@ -2,7 +2,7 @@ terraform {
   required_providers {
     auth0 = {
       source  = "auth0/auth0"
-      version = "1.8.0"
+      version = "1.28.0"
     }
     heroku = {
       source  = "heroku/heroku"

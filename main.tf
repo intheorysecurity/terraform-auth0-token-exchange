@@ -1,11 +1,15 @@
 resource "auth0_client" "token_exchange_app" {
-  name        = "Token Exchange Demo App"
-  app_type    = "non_interactive"
-  description = "Token Exchange Demo Application"
+  name            = "Token Exchange Demo App"
+  app_type        = "non_interactive"
+  description     = "Token Exchange Demo Application"
+  oidc_conformant = true
   jwt_configuration {
     alg                 = "RS256"
     lifetime_in_seconds = 36000
     secret_encoded      = false
+  }
+  token_exchange {
+    allow_any_profile_of_type = ["custom_authentication"]
   }
 }
 
@@ -14,24 +18,31 @@ resource "auth0_client_credentials" "token_exchange_app_creds" {
   authentication_method = "client_secret_post"
 }
 
-# resource "auth0_action" "token_exchange_action" {
-#   name    = "Token Exchange Action Beta"
-#   runtime = "node18"
-#   deploy  = true
-#   code    = templatefile("${path.module}/src/actions/token-exchange-action.js", { client_id = "${auth0_client.token_exchange_app.client_id}" })
-#   supported_triggers {
-#     id      = "custom-token-exchange-beta"
-#     version = "v1"
-#   }
-#   dependencies {
-#     name    = "jsonwebtoken"
-#     version = "latest"
-#   }
-#   secrets {
-#     name  = "password"
-#     value = var.json_secret
-#   }
-# }
+resource "auth0_action" "token_exchange_action" {
+  name    = "Token Exchange Action"
+  runtime = "node18"
+  deploy  = true
+  code    = templatefile("${path.module}/src/actions/token-exchange-action.js", { client_id = "${auth0_client.token_exchange_app.client_id}" })
+  supported_triggers {
+    id      = "custom-token-exchange"
+    version = "v1"
+  }
+  dependencies {
+    name    = "jsonwebtoken"
+    version = "latest"
+  }
+  secrets {
+    name  = "password"
+    value = var.json_secret
+  }
+}
+
+resource "auth0_token_exchange_profile" "my_token_exchange_profile" {
+  name        = "token_exchange_profile"
+  subject_token_type = "http://acme.com/legacy-token"
+  action_id = auth0_action.token_exchange_action.id
+  type = "custom_authentication"
+}
 
 resource "heroku_app" "default" {
   name       = var.heroku_app_name
@@ -44,12 +55,12 @@ resource "heroku_config" "common" {
     AUTH0_DOMAIN            = "${var.auth0_domain}"
     AUTH0_API_CLIENT_ID     = "${auth0_client.token_exchange_app.client_id}"
     AUTH0_API_CLIENT_SECRET = "${auth0_client_credentials.token_exchange_app_creds.client_secret}"
-    JSON_SECRET = "${var.json_secret}"
+    JSON_SECRET             = "${var.json_secret}"
   }
 }
 
 resource "heroku_app_config_association" "configuration" {
-  app_id = heroku_app.default.id
+  app_id         = heroku_app.default.id
   sensitive_vars = heroku_config.common.sensitive_vars
 }
 
