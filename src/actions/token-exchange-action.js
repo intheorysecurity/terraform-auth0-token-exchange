@@ -30,15 +30,15 @@ exports.onExecuteCustomTokenExchange = async (event, api) => {
       });
       try {
         console.log("looking for user with auth0 Management API");
-        const searchResult = await management.usersByEmail.getByEmail({
+        const searchResult = await management.users.listUsersByEmail({
           email: user.email,
         });
         console.log("Finished Search");
         console.log(searchResult);
-        if (searchResult.data[0].user_id) {
+        if (searchResult[0]?.user_id) {
           console.log("Found a user");
-          console.log(searchResult.data[0].user_id)
-          api.authentication.setUserById(searchResult.data[0].user_id);
+          console.log(searchResult[0].user_id)
+          api.authentication.setUserById(searchResult[0].user_id);
         } else {
           //User not found, use setUserByConnection method and allow creation of user
           console.log("User not found, will create user");
