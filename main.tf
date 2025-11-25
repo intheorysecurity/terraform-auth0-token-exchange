@@ -20,7 +20,7 @@ resource "auth0_client_credentials" "token_exchange_app_creds" {
 
 resource "auth0_action" "token_exchange_action" {
   name    = "Token Exchange Action"
-  runtime = "node18"
+  runtime = "node22"
   deploy  = true
   code    = templatefile("${path.module}/src/actions/token-exchange-action.js", { client_id = "${auth0_client.token_exchange_app.client_id}" })
   supported_triggers {
