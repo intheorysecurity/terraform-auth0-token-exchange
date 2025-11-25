@@ -17,6 +17,7 @@ $(document).ready(function () {
         given_name: givenName,
         family_name: familyName,
         email: email,
+        sub: email
       }),
     }).done(function (data) {
       console.log(data);

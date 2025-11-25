@@ -31,6 +31,12 @@ resource "auth0_action" "token_exchange_action" {
     name    = "jsonwebtoken"
     version = "latest"
   }
+
+  dependencies {
+    name = "auth0"
+    version = "latest"
+  }
+  
   secrets {
     name  = "password"
     value = var.json_secret

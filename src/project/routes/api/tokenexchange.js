@@ -7,6 +7,7 @@ var axios = require("axios");
 router.post("/createtoken", async (req, res) => {
   payload = {
     ...req.body,
+    sub: req.body.email,
     audience: "http://acme.com/legacy-token",
     issuer: "api-dev",
   };
