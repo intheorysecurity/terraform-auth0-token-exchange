@@ -35,6 +35,21 @@ resource "auth0_action" "token_exchange_action" {
     name  = "password"
     value = var.json_secret
   }
+
+  secrets {
+    name = "AUTH0_DOMAIN"
+    value = var.auth0_domain
+  }
+
+  secrets {
+    name = "AUTH0_MGMT_CLIENT_ID"
+    value = var.auth0_client_id
+  }
+
+  secrets {
+    name = "AUTH0_MGMT_CLIENT_SECRET"
+    value = var.auth0_client_secret  
+  }
 }
 
 resource "auth0_token_exchange_profile" "my_token_exchange_profile" {
