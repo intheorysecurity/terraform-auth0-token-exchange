@@ -37,8 +37,8 @@ exports.onExecuteCustomTokenExchange = async (event, api) => {
         console.log(searchResult);
         if (searchResult[0]?.user_id) {
           console.log("Found a user");
-          console.log(searchResult[0].user_id)
-          api.authentication.setUserById(searchResult[0].user_id);
+          console.log(searchResult[0]?.user_id)
+          api.authentication.setUserById(searchResult[0]?.user_id);
         } else {
           //User not found, use setUserByConnection method and allow creation of user
           console.log("User not found, will create user");
