@@ -8,7 +8,7 @@ const ManagementClient = require("auth0").ManagementClient;
 
 exports.onExecuteCustomTokenExchange = async (event, api) => {
   // validate and decode your token, and extract user details
-  if (event.client.client_id === "xEOmf3DCYP6oq9lf6n4lQUOTPA30OddI") {
+  if (event.client.client_id === "${client_id}") {
     console.log("Token: " + event.transaction.subject_token);
     const user = validateToken(
       event.transaction.subject_token,
