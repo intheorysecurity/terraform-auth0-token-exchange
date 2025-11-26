@@ -72,6 +72,12 @@ terraform apply
 - Creating the Token Exchange Profile and linking it to the action
 - Setting up the Heroku application with all necessary configuration
 
+## Limitations
+---
+* The database connection being used does not have user import enabled. By default, we leverage the "Username-Password-Authentication" database.
+* The app does not handle MFA or MFA scenarios. Either disable MFA or be prepared to enroll/challenge users with an `mfa_token`.
+* Ensure that "Allow Skipping User Consent" is enabled for your API audience.
+
 ## Contributing
 ---
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
