@@ -4,60 +4,116 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Token Exchange Demo</title>
+  <title>Custom Token Exchange Demo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="js/token.js"></script>
 </head>
 
 <body>
 
-  <div class="container my-5">
-    <h1>Token Exchange Demo</h1>
-    <div class="container">
-      <p>Create JSON Token</p>
-      <div class="mb-3">
-        <label class="form-label">First Name</label>
-        <input type="text" , class="form-control" id="given_name" />
+  <main class="container my-5">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+      <div>
+        <h1 class="mb-1">Auth0 Custom Token Exchange Demo</h1>
+        <p class="text-body-secondary mb-0">
+          Generate a demo “legacy” JWT, then exchange it via Auth0 <code>/oauth/token</code>.
+        </p>
       </div>
-      <div class="mb-3">
-        <label class="form-label">Last Name</label>
-        <input type="text" , class="form-control" id="family_name" />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="text" , class="form-control" id="email" />
-      </div>
-      <!-- <div class="mb-5">
-        <label class="form-label">Permissions</label>
-        <ul class="list-group" id="permissions">
-          <li class="list-group-item">
-            <input class="form-check-input me-1" type="checkbox" value="" id="readOnly" />
-            <label class="form-check-label" id="read:only">Read Only</label>
-          </li>
-          <li class="list-group-item">
-            <input class="form-check-input me-1" type="checkbox" value="" id="writeOnly" />
-            <label class="form-check-label" id="write:only">Write</label>
-          </li>
-          <li class="list-group-item">
-            <input class="form-check-input me-1" type="checkbox" value="" id="admin" />
-            <label class="form-check-label" id="admin">Admin</label>
-          </li>
-        </ul>
-      </div> -->
-      <div class="mt-4"><button id="btnSubmit" class="btn btn-primary" type="button">Generate Token</button>
+      <div class="small text-body-secondary">
+        <div><span class="badge text-bg-secondary">Step 1</span> Mint legacy token</div>
+        <div><span class="badge text-bg-secondary">Step 2</span> Exchange via Auth0</div>
       </div>
     </div>
-    <div class="container my-3">
-      <p>Current Token</p>
-      <code id="jsonToken"></code>
-    </div>
-    <div class="container my-3">
-      <p>Exchange Token</p>
-      <button type="button" id="btnExchange" class="btn btn-primary">Call Auth0</button>
-      <div class="container my-5 d-none" id="auth0response">
-        <h3>Auth0 Response</h3>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 mb-2">1) Create legacy token</h2>
+            <p class="text-body-secondary small mb-3">
+              This calls <code>POST /api/createtoken</code>. The server signs a JWT using <code>JSON_SECRET</code>.
+            </p>
+
+            <div id="formAlert" class="alert alert-danger d-none" role="alert"></div>
+
+            <form id="tokenForm" novalidate>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="given_name">First name</label>
+                  <input type="text" class="form-control" id="given_name" autocomplete="given-name" placeholder="Ada" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label" for="family_name">Last name</label>
+                  <input type="text" class="form-control" id="family_name" autocomplete="family-name" placeholder="Lovelace" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label" for="email">Email</label>
+                  <input type="email" class="form-control" id="email" autocomplete="email" placeholder="ada@example.com" required />
+                  <div class="form-text">
+                    The Action uses <code>email</code> to find/create a user when <code>sub</code> is not an Auth0 user id.
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <button id="btnSubmit" class="btn btn-primary" type="button">
+                  Generate token
+                </button>
+                <button id="btnClear" class="btn btn-outline-secondary" type="button">
+                  Clear
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 mb-2">2) Exchange token with Auth0</h2>
+            <p class="text-body-secondary small mb-3">
+              This calls <code>POST /api/tokenexchange</code> and forwards the token to Auth0 with the token exchange grant.
+            </p>
+
+            <label class="form-label" for="jsonToken">Legacy JWT</label>
+            <textarea id="jsonToken" class="form-control font-monospace" rows="6" readonly
+              placeholder="Generate a token to see it here..."></textarea>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              <button id="btnCopy" class="btn btn-outline-primary btn-sm" type="button" disabled>
+                Copy token
+              </button>
+              <span id="copyStatus" class="small text-body-secondary align-self-center"></span>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <button type="button" id="btnExchange" class="btn btn-success" disabled>
+                Exchange with Auth0
+              </button>
+              <div id="exchangeSpinner" class="d-none align-self-center">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span class="small text-body-secondary ms-2">Calling Auth0…</span>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <h3 class="h6 mb-0">Response</h3>
+                <button id="btnClearResponse" class="btn btn-link btn-sm px-0" type="button">Clear</button>
+              </div>
+              <div id="auth0response" class="d-none">
+                <div id="auth0Alert" class="alert alert-danger d-none" role="alert"></div>
+                <pre id="auth0json" class="bg-body-tertiary border rounded p-3 small mb-0 overflow-auto"></pre>
+              </div>
+              <p id="responseHint" class="text-body-secondary small mb-0">
+                Exchange a token to see the Auth0 response here.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,53 +1,81 @@
 const express = require("express");
-const app = require("../../server");
 const router = express.Router();
 var jwt = require("jsonwebtoken");
 var axios = require("axios");
 
 router.post("/createtoken", async (req, res) => {
-  payload = {
-    ...req.body,
-    sub: req.body.email,
+  const { email, given_name, family_name, sub } = req.body ?? {};
+  if (typeof email !== "string" || email.length > 254 || !email.includes("@")) {
+    return res.status(400).json({ error: "invalid_email" });
+  }
+
+  const payload = {
+    // Keep fields demo-friendly and predictable.
+    given_name: typeof given_name === "string" ? given_name : undefined,
+    family_name: typeof family_name === "string" ? family_name : undefined,
+    email,
+    // Prefer explicit legacy subject; default to a stable legacy-ish identifier.
+    sub: typeof sub === "string" && sub.length ? sub : `legacy|${email}`,
+    // Standard claims (we keep prior custom names for backwards readability).
+    aud: "http://acme.com/legacy-token",
+    iss: "api-dev",
     audience: "http://acme.com/legacy-token",
     issuer: "api-dev",
   };
 
-  var jsonToken = jwt.sign(payload, process.env.JSON_SECRET , { expiresIn: "1h" });
+  if (!process.env.JSON_SECRET) {
+    return res.status(500).json({ error: "missing_JSON_SECRET" });
+  }
+
+  const jsonToken = jwt.sign(payload, process.env.JSON_SECRET, {
+    expiresIn: "1h",
+  });
 
   return res.json(jsonToken);
 });
 
 router.post("/tokenexchange", async (req, res) => {
-  var jsonToken = req.body.jsonToken;
-  var options = {
-    method: "POST",
-    url: `https://${process.env.AUTH0_DOMAIN}/oauth/token`,
-    header: {
-      "Content-Type": "application/json",
-    },
-    data: {
+  const jsonToken = req.body?.jsonToken;
+  if (typeof jsonToken !== "string" || jsonToken.length < 10) {
+    return res.status(400).json({ error: "invalid_subject_token" });
+  }
+
+  const { AUTH0_DOMAIN, AUTH0_API_CLIENT_ID, AUTH0_API_CLIENT_SECRET } =
+    process.env;
+  if (!AUTH0_DOMAIN || !AUTH0_API_CLIENT_ID || !AUTH0_API_CLIENT_SECRET) {
+    return res.status(500).json({
+      error: "missing_server_configuration",
+      missing: {
+        AUTH0_DOMAIN: !AUTH0_DOMAIN,
+        AUTH0_API_CLIENT_ID: !AUTH0_API_CLIENT_ID,
+        AUTH0_API_CLIENT_SECRET: !AUTH0_API_CLIENT_SECRET,
+      },
+    });
+  }
+
+  try {
+    const url = `https://${AUTH0_DOMAIN}/oauth/token`;
+    const body = {
       grant_type: "urn:ietf:params:oauth:grant-type:token-exchange",
       subject_token_type: "http://acme.com/legacy-token",
       subject_token: jsonToken,
-      client_id: process.env.AUTH0_API_CLIENT_ID,
-      client_secret: process.env.AUTH0_API_CLIENT_SECRET,
-      audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+      client_id: AUTH0_API_CLIENT_ID,
+      client_secret: AUTH0_API_CLIENT_SECRET,
+      // NOTE: Keeping Management API audience for "fresh tenant" ergonomics.
+      audience: `https://${AUTH0_DOMAIN}/api/v2/`,
       scope: "openid",
-    },
-  };
+    };
 
-  try {
-    var { status, data } = await axios(options);
-    if (status === 200) {
-      res.send({ ...data });
-    } else {
-      console.log(status);
-      res.send({ message: "Error", status: 400 });
-    }
+    const { data } = await axios.post(url, body, {
+      headers: { "Content-Type": "application/json" },
+      timeout: 10_000,
+    });
+
+    return res.status(200).json({ ...data });
   } catch (error) {
-    var data = error.response.data
-    var status = error.status
-    res.send({...data, status});
+    const status = error?.response?.status ?? 500;
+    const data = error?.response?.data ?? { error: "token_exchange_failed" };
+    return res.status(status).json({ ...data, status });
   }
 });
 

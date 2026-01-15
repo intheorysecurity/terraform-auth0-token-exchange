@@ -6,5 +6,6 @@ node_modules/
 *.tfstate
 *.tfstate.backup
 .env
+.DS_Store
 package-lock.json
 todo
