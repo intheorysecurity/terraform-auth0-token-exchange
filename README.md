@@ -76,7 +76,7 @@ terraform apply
 
 If you don’t want to host the app on Heroku, you can run the Node app directly:
 
-- See `src/project/README.md` for local run instructions.
+- See [`src/project/README.md`](src/project/README.md) for local run instructions.
 - You still need an Auth0 tenant configured with the Token Exchange Profile + Action (Terraform can do that for you).
 
 ## What Terraform configures
