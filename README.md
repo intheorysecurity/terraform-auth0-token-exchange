@@ -85,9 +85,13 @@ If you don’t want to host the app on Heroku, you can run the Node app directly
   - A non-interactive (M2M) “Token Exchange Demo App” client
   - A Token Exchange Action (`custom-token-exchange` trigger)
   - A Token Exchange Profile (type `custom_authentication`) with `subject_token_type=http://acme.com/legacy-token`
+  - A Resource Server (API) with identifier `http://acme.com/legacy-token` (used as the token exchange `audience`)
+  - A Client Grant linking the M2M client to the Resource Server
   - Action secrets for verifying the legacy JWT (`json_secret`) and (optionally) calling the Management API to find users by email
 - **Heroku (optional)**
   - Deploys the demo Node app under `src/project/` and sets needed environment variables
+
+For the exact Terraform resources and settings, see [`main.tf`](main.tf).
 
 ## Limitations / notes
 
