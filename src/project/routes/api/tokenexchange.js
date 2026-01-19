@@ -62,7 +62,7 @@ router.post("/tokenexchange", async (req, res) => {
       client_id: AUTH0_API_CLIENT_ID,
       client_secret: AUTH0_API_CLIENT_SECRET,
       // NOTE: Keeping Management API audience for "fresh tenant" ergonomics.
-      audience: `https://${AUTH0_DOMAIN}/api/v2/`,
+      audience: `http://acme.com/legacy-token`,
       scope: "openid",
     };
 

@@ -33,36 +33,51 @@ resource "auth0_action" "token_exchange_action" {
   }
 
   dependencies {
-    name = "auth0"
+    name    = "auth0"
     version = "latest"
   }
-  
+
   secrets {
     name  = "password"
     value = var.json_secret
   }
 
   secrets {
-    name = "AUTH0_DOMAIN"
+    name  = "AUTH0_DOMAIN"
     value = var.auth0_domain
   }
 
   secrets {
-    name = "AUTH0_MGMT_CLIENT_ID"
+    name  = "AUTH0_MGMT_CLIENT_ID"
     value = var.auth0_client_id
   }
 
   secrets {
-    name = "AUTH0_MGMT_CLIENT_SECRET"
-    value = var.auth0_client_secret  
+    name  = "AUTH0_MGMT_CLIENT_SECRET"
+    value = var.auth0_client_secret
   }
 }
 
 resource "auth0_token_exchange_profile" "my_token_exchange_profile" {
-  name        = "token_exchange_profile"
+  name               = "token_exchange_profile"
   subject_token_type = "http://acme.com/legacy-token"
-  action_id = auth0_action.token_exchange_action.id
-  type = "custom_authentication"
+  action_id          = auth0_action.token_exchange_action.id
+  type               = "custom_authentication"
+}
+
+resource "auth0_resource_server" "my_resource_server" {
+  name                                            = "Token Exchange API"
+  identifier                                      = "http://acme.com/legacy-token"
+  signing_alg                                     = "RS256"
+  allow_offline_access                            = true
+  token_lifetime                                  = 8600
+  skip_consent_for_verifiable_first_party_clients = true
+}
+
+resource "auth0_client_grant" "my_client_grant" {
+  client_id = auth0_client_credentials.token_exchange_app_creds.id
+  audience  = auth0_resource_server.my_resource_server.identifier
+  scopes    = []
 }
 
 resource "heroku_app" "default" {

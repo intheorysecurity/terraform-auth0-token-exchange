@@ -17,6 +17,10 @@ This repo is an end-to-end demo of **Auth0 Token Exchange** using:
    - Otherwise it looks up by email and (for demo purposes) can create a user in the DB connection
 4. Auth0 returns tokens to the demo app, which are displayed in the UI
 
+## Screenshot
+
+![Demo UI](screenshots/demo-ui.png)
+
 ## Disclaimer
 
 This project is a **reference demo** for learning and experimenting with Auth0 Custom Token Exchange. It is **not a drop-in “install and run” solution** and is **not production-ready**.
